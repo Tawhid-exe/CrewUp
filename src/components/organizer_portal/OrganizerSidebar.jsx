@@ -1,16 +1,33 @@
 import { NavLink } from "react-router-dom";
+
 import {
   LayoutDashboard,
   CalendarDays,
   Users,
   Plus,
   LogOut,
+  X,
 } from "lucide-react";
 
-function OrganizerSidebar() {
+function OrganizerSidebar({ isOpen, setIsOpen }) {
   return (
-    <aside className="flex min-h-screen w-[275px] shrink-0 flex-col justify-between border-r border-[#24342A] bg-[#1c201f] px-6 py-7">
+    <aside
+      className={`fixed left-0 top-0 z-50 flex min-h-screen w-[275px] flex-col justify-between
+  border-r border-[#24342A] bg-[#1c201f] px-6 py-7 transition-transform duration-300
+  lg:static lg:translate-x-0
+  ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+    >
       <div>
+        {/* Close Button for Mobile */}
+        <div className="mb-5 flex justify-end lg:hidden">
+          <button
+            onClick={() => setIsOpen(false)}
+            className="text-[#c1cab3] hover:text-[#afff66]"
+          >
+            <X size={26} />
+          </button>
+        </div>
+
         {/* Logo */}
         <div className="mb-12 flex items-center gap-3">
           <div className="h-11 w-11 rounded-full border border-[#424938] bg-[#24342A]" />
@@ -31,6 +48,7 @@ function OrganizerSidebar() {
           {/* Dashboard */}
           <NavLink
             to="/organizer/dashboard"
+            onClick={() => setIsOpen(false)}
             className={({ isActive }) =>
               `flex w-full items-center gap-4 rounded-lg px-4 py-4 text-left text-xs uppercase tracking-widest transition ${
                 isActive
@@ -46,6 +64,7 @@ function OrganizerSidebar() {
           {/* Manage Events */}
           <NavLink
             to="/organizer/events"
+            onClick={() => setIsOpen(false)}
             className={({ isActive }) =>
               `flex w-full items-center gap-4 rounded-lg px-4 py-4 text-left text-xs uppercase tracking-widest transition ${
                 isActive
@@ -61,6 +80,7 @@ function OrganizerSidebar() {
           {/* Volunteers */}
           <NavLink
             to="/organizer/volunteers"
+            onClick={() => setIsOpen(false)}
             className={({ isActive }) =>
               `flex w-full items-center gap-4 rounded-lg px-4 py-4 text-left text-xs uppercase tracking-widest transition ${
                 isActive
@@ -80,6 +100,7 @@ function OrganizerSidebar() {
         {/* Sign Out */}
         <NavLink
           to="/"
+          onClick={() => setIsOpen(false)}
           className="flex w-full items-center justify-center gap-3 rounded-lg border border-[#324539] py-4 font-medium tracking-wide text-[#c1cab3] transition hover:bg-[#24342A] hover:text-[#afff66]"
         >
           <LogOut size={20} />
