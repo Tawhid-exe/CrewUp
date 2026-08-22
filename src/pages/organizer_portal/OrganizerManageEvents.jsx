@@ -1,5 +1,8 @@
 import OrganizerSidebar from "../../components/organizer_portal/OrganizerSidebar";
 
+import { useState } from "react";
+import { Menu } from "lucide-react";
+
 import {
   Search,
   SlidersHorizontal,
@@ -14,6 +17,8 @@ import {
 } from "lucide-react";
 
 function OrganizerManageEvents() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const events = [
     {
       name: "Riverfront Revitalization & Cleanup",
@@ -53,14 +58,32 @@ function OrganizerManageEvents() {
   return (
     <div className="flex min-h-screen bg-[#101413] text-[#e0e3e1]">
       {/* SIDEBAR */}
-      <OrganizerSidebar />
+      <OrganizerSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+
+      {/* Mobile overlay */}
+      {isSidebarOpen && (
+        <div
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+        />
+      )}
 
       {/* ----------------- MAIN CONTENT -------------------- */}
-      <main className="min-w-0 flex-1 px-10 py-11">
+      <main className="min-w-0 flex-1 px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-11">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="mb-6 rounded-lg border border-[#324539] bg-[#1c201f] p-3 text-[#afff66] lg:hidden"
+        >
+          <Menu size={24} />
+        </button>
+
         {/* Top Section */}
-        <div className="mb-20 flex items-start justify-between">
+        <div className="mb-10 flex flex-col gap-6 lg:mb-20 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h1 className="mb-2 text-5xl font-semibold">Manage Events</h1>
+            <h1 className="mb-2 text-3xl font-semibold sm:text-4xl lg:text-5xl">
+              Manage Events
+            </h1>
 
             <p className="text-base text-[#c1cab3]">
               Track, edit, and monitor the status of your organized
@@ -69,8 +92,8 @@ function OrganizerManageEvents() {
           </div>
 
           {/* Statistics */}
-          <div className="flex gap-4">
-            <div className="flex w-[170px] items-center gap-4 rounded-xl border border-[#324539] bg-[#1c201f] p-4">
+          <div className="flex w-full gap-4 lg:w-auto">
+            <div className="flex w-full items-center gap-4 rounded-xl border border-[#324539] bg-[#1c201f] p-4 sm:w-[170px]">
               <div className="flex h-12 w-12 items-center justify-center rounded-md bg-[#24342A] text-[#afff66]">
                 <RefreshCw size={23} />
               </div>
@@ -87,8 +110,8 @@ function OrganizerManageEvents() {
         {/* ----------------- EVENTS CARD --------------------- */}
         <section className="w-full overflow-hidden rounded-2xl border border-[#324539] bg-[#1c201f]">
           {/* Search */}
-          <div className="flex items-center justify-between bg-[#24342A] p-6">
-            <div className="flex h-10 w-[480px] items-center gap-3 rounded-md border border-[#324539] bg-[#14251d] px-4 text-[#c1cab3]">
+          <div className="flex flex-col gap-4 bg-[#24342A] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="flex h-10 w-full sm:w-[480px] items-center gap-3 rounded-md border border-[#324539] bg-[#14251d] px-4 text-[#c1cab3]">
               <Search size={20} />
 
               <input
@@ -105,12 +128,14 @@ function OrganizerManageEvents() {
           </div>
 
           {/* Table Header */}
-          <div className="grid grid-cols-[2.3fr_1.1fr_0.9fr_0.9fr_0.6fr] bg-[#19201d] px-9 py-5 text-[11px] uppercase tracking-widest text-[#c1cab3]">
-            <div>Event Name & Details</div>
-            <div>Date & Time</div>
-            <div>Registrations</div>
-            <div>Status</div>
-            <div>Actions</div>
+          <div className="min-w-[950px]">
+            <div className="grid grid-cols-[2.3fr_1.1fr_0.9fr_0.9fr_0.6fr] bg-[#19201d] px-9 py-5 text-[11px] uppercase tracking-widest text-[#c1cab3]">
+              <div>Event Name & Details</div>
+              <div>Date & Time</div>
+              <div>Registrations</div>
+              <div>Status</div>
+              <div>Actions</div>
+            </div>
           </div>
 
           {/* Events */}
@@ -221,7 +246,7 @@ function OrganizerManageEvents() {
           ))}
 
           {/* Pagination */}
-          <div className="flex items-center justify-between px-5 py-4 text-xs tracking-wider text-[#c1cab3]">
+          <div className="flex flex-col gap-4 px-5 py-4 text-xs tracking-wider text-[#c1cab3] sm:flex-row sm:items-center sm:justify-between">
             <p>Showing 1–3 of 15 events</p>
 
             <div className="flex items-center gap-3">
