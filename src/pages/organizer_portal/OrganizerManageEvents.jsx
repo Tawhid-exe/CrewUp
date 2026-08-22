@@ -1,10 +1,6 @@
-import { NavLink } from "react-router-dom";
+import OrganizerSidebar from "../../components/organizer_portal/OrganizerSidebar";
 
 import {
-  LayoutDashboard,
-  CalendarDays,
-  Users,
-  Plus,
   Search,
   SlidersHorizontal,
   Pencil,
@@ -15,7 +11,6 @@ import {
   Image,
   ChevronLeft,
   ChevronRight,
-  LogOut,
 } from "lucide-react";
 
 function OrganizerManageEvents() {
@@ -57,93 +52,11 @@ function OrganizerManageEvents() {
 
   return (
     <div className="flex min-h-screen bg-[#101413] text-[#e0e3e1]">
-      {/* ------------------- SIDEBAR -------------------- */}
-      <aside className="flex min-h-screen w-[275px] flex-col justify-between border-r border-[#24342A] bg-[#1c201f] px-6 py-7">
-        <div>
-          {/* Logo */}
-          <div className="mb-12 flex items-center gap-3">
-            <div className="h-11 w-11 rounded-full border border-[#424938] bg-[#24342A]" />
-
-            <div>
-              <h2 className="text-lg font-semibold tracking-wide text-[#afff66]">
-                Organizer Portal
-              </h2>
-
-              <p className="text-xs tracking-wider text-[#c1cab3]">
-                Eco-Tech Management
-              </p>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <nav className="space-y-2">
-            {/* Dashboard */}
-            <NavLink
-              to="/organizer/dashboard"
-              className={({ isActive }) =>
-                `flex w-full items-center gap-4 rounded-lg px-4 py-4 text-left text-xs uppercase tracking-widest transition ${
-                  isActive
-                    ? "bg-[#424f47] text-[#afff66]"
-                    : "text-[#c1cab3] hover:bg-[#24342A]"
-                }`
-              }
-            >
-              <LayoutDashboard size={20} />
-              Dashboard
-            </NavLink>
-
-            {/* Manage Events */}
-            <NavLink
-              to="/organizer/events"
-              className={({ isActive }) =>
-                `flex w-full items-center gap-4 rounded-lg px-4 py-4 text-left text-xs uppercase tracking-widest transition ${
-                  isActive
-                    ? "bg-[#424f47] text-[#afff66]"
-                    : "text-[#c1cab3] hover:bg-[#24342A]"
-                }`
-              }
-            >
-              <CalendarDays size={20} />
-              Manage Events
-            </NavLink>
-
-            <NavLink
-              to="/organizer/volunteers"
-              className={({ isActive }) =>
-                `flex w-full items-center gap-4 rounded-lg px-4 py-4 text-xs uppercase tracking-widest transition ${
-                  isActive
-                    ? "bg-[#424f47] text-[#afff66]"
-                    : "text-[#c1cab3] hover:bg-[#24342A]"
-                }`
-              }
-            >
-              <Users size={20} />
-              Volunteers
-            </NavLink>
-
-          </nav>
-        </div>
-
-        <div className="space-y-3">
-          {/* Sign Out */}
-          <NavLink
-            to="/"
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-[#324539] py-4 font-medium tracking-wide text-[#c1cab3] transition hover:bg-[#24342A] hover:text-[#afff66]"
-          >
-            <LogOut size={20} />
-            Sign Out
-          </NavLink>
-
-          {/* Create Event */}
-          <button className="flex w-full items-center justify-center gap-3 rounded-lg bg-[#afff66] py-4 font-medium tracking-wide text-[#101413] transition hover:bg-[#b7ff72]">
-            <Plus size={21} />
-            Create Event
-          </button>
-        </div>
-      </aside>
+      {/* SIDEBAR */}
+      <OrganizerSidebar />
 
       {/* ----------------- MAIN CONTENT -------------------- */}
-      <main className="flex-1 px-10 py-11">
+      <main className="min-w-0 flex-1 px-10 py-11">
         {/* Top Section */}
         <div className="mb-20 flex items-start justify-between">
           <div>
@@ -172,7 +85,7 @@ function OrganizerManageEvents() {
         </div>
 
         {/* ----------------- EVENTS CARD --------------------- */}
-        <section className="max-w-[1050px] overflow-hidden rounded-2xl border border-[#324539] bg-[#1c201f]">
+        <section className="w-full overflow-hidden rounded-2xl border border-[#324539] bg-[#1c201f]">
           {/* Search */}
           <div className="flex items-center justify-between bg-[#24342A] p-6">
             <div className="flex h-10 w-[480px] items-center gap-3 rounded-md border border-[#324539] bg-[#14251d] px-4 text-[#c1cab3]">
