@@ -1,15 +1,49 @@
-import { Link, useNavigate } from 'react-router-dom'; // 1. Added useNavigate
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Eye, Building2, ShieldCheck } from 'lucide-react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import bgImg from '../../assets/auth_org.jpg';
 
 const OrgLogin = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); 
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/organizer/dashboard'); 
+    setError(null);
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:4000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username: formData.email, password: formData.password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      if (data.role && data.role !== 'organization') {
+         throw new Error('Please login through the Volunteer portal.');
+      }
+
+      navigate('/organizer/dashboard');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,9 +85,9 @@ const OrgLogin = () => {
             <h2 className="text-3xl font-bold text-white mb-2">Organizer Sign In</h2>
             <p className="text-light-muted text-sm mb-8">Welcome back to your dashboard.</p>
 
-            {/* 4. Added onSubmit handler to the form */}
             <form onSubmit={handleSubmit} className="space-y-6">
-              <Input label="Organization Email" id="email" type="email" icon={Mail} placeholder="admin@eco-tech.org" />
+              {error && <div className="p-3 bg-red-900/30 border border-red-500/50 rounded text-red-200 text-sm">{error}</div>}
+              <Input label="Organization Email" id="email" type="email" icon={Mail} placeholder="admin@eco-tech.org" value={formData.email} onChange={handleChange} required />
               
               <div>
                 <div className="flex justify-between items-center mb-2">
@@ -61,7 +95,7 @@ const OrgLogin = () => {
                   <a href="#" className="text-xs text-brand hover:underline">Forgot password?</a>
                 </div>
                 <div className="relative">
-                  <Input id="password" type="password" icon={Lock} placeholder="••••••••" />
+                  <Input id="password" type="password" icon={Lock} placeholder="••••••••" value={formData.password} onChange={handleChange} required />
                   <button type="button" className="absolute right-3 top-[11px] text-light-muted hover:text-white transition-colors">
                     <Eye className="w-5 h-5" />
                   </button>
@@ -74,9 +108,9 @@ const OrgLogin = () => {
               </div>
 
               <div className="pt-2">
-                <Button type="submit" variant="primary" className="w-full group rounded-md">
-                  <span className="font-semibold text-sm tracking-wide">Access Portal</span>
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                <Button type="submit" variant="primary" className="w-full group rounded-md" disabled={loading}>
+                  <span className="font-semibold text-sm tracking-wide">{loading ? 'Accessing...' : 'Access Portal'}</span>
+                  {!loading && <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />}
                 </Button>
               </div>
 
