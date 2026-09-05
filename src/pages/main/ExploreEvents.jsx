@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, ChevronDown } from 'lucide-react';
 import EventCard from '../../components/EventCard';
 import FilterSidebar from '../../components/FilterSidebar';
-import { EVENTS } from '../../data/eventsData';
+import fetchJSON from '../../utils/api';
 
 export default function ExploreEvents() {
   const [selectedCategories, setSelectedCategories] = useState(['Environmental']);
   const [dateFilter, setDateFilter] = useState('Any Date');
   const [city, setCity] = useState('');
   const [search, setSearch] = useState('');
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(6);
 
   const toggleCategory = (cat) =>
@@ -16,22 +19,50 @@ export default function ExploreEvents() {
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
 
-  const filtered = EVENTS.filter((e) => {
-    const matchCat = selectedCategories.length === 0 || selectedCategories.includes(e.category);
-    const matchSearch = !search || e.title.toLowerCase().includes(search.toLowerCase()) || e.location.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
-  });
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (selectedCategories.length > 0) params.set('categories', selectedCategories.join(','));
+    if (dateFilter !== 'Any Date') params.set('date', dateFilter);
+    if (city.trim()) params.set('city', city.trim());
+    if (search.trim()) params.set('q', search.trim());
+    const query = params.toString();
+
+    let cancelled = false;
+
+    fetchJSON(`/api/events${query ? `?${query}` : ''}`)
+      .then((data) => {
+        if (!cancelled) {
+          setEvents(data);
+          setVisibleCount(6);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err.message);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCategories, dateFilter, city, search]);
 
   return (
     <div className="flex flex-1 max-w-7xl mx-auto w-full px-4 md:px-6">
-      <FilterSidebar
+
+      <div className="mt-10">
+       <FilterSidebar
         selectedCategories={selectedCategories}
         toggleCategory={toggleCategory}
         dateFilter={dateFilter}
         setDateFilter={setDateFilter}
         city={city}
         setCity={setCity}
-      />
+      />  
+      </div>
+      
 
       <main className="flex-1 py-10 lg:pl-10 min-w-0">
         {/* Header */}
@@ -47,15 +78,33 @@ export default function ExploreEvents() {
         </div>
 
         {/* Grid */}
-        <p className="text-xs font-mono text-light-muted uppercase tracking-widest mb-6">{filtered.length} events found</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filtered.slice(0, visibleCount).map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </div>
+        <p className="text-xs font-mono text-light-muted uppercase tracking-widest mb-6">{events.length} events found</p>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center text-center bg-dark-surface border border-dark-border rounded-2xl py-20 px-6">
+            <p className="text-sm text-light-muted">Loading events...</p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center text-center bg-dark-surface border border-dark-border rounded-2xl py-20 px-6">
+            <p className="text-lg font-semibold text-white mb-2">Couldn't load events</p>
+            <p className="text-sm text-light-muted">{error}</p>
+          </div>
+        ) : events.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center bg-dark-surface border border-dark-border rounded-2xl py-20 px-6">
+            <p className="text-lg font-semibold text-white mb-2">No events found</p>
+            <p className="text-sm text-light-muted max-w-sm">
+              No events match your filters. Try adjusting them.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {events.slice(0, visibleCount).map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        )}
 
         {/* Load More */}
-        {visibleCount < filtered.length && (
+        {visibleCount < events.length && (
           <div className="mt-12 flex justify-center">
             <button onClick={() => setVisibleCount((n) => n + 3)} className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-light-muted hover:text-brand transition-colors group">
               Load More Events

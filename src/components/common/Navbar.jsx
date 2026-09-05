@@ -1,8 +1,33 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Leaf } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ChevronDown, Leaf, LogOut } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, loading, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    setMenuOpen(false);
+    await logout();
+    navigate('/');
+  };
+
+  const displayName = user?.displayName || user?.username;
+  const initial = displayName ? displayName.charAt(0).toUpperCase() : '?';
 
   return (
     <nav className="w-full bg-dark-bg/80 backdrop-blur-md border-b border-dark-border py-4 px-6 fixed top-0 z-50">
@@ -25,15 +50,39 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <Link to="/auth/login" className="hidden md:inline-block text-sm font-medium text-light hover:text-brand transition-colors">
-            Login
-          </Link>
-          <Link 
-            to="/auth/register" 
-            className="bg-brand text-dark-bg hover:bg-brand-hover px-5 py-2 rounded-full text-sm font-semibold transition-colors"
-          >
-            Register
-          </Link>
+          {loading ? null : user ? (
+            <div className="relative" ref={menuRef}>
+              <button onClick={() => setMenuOpen((open) => !open)} className="flex items-center space-x-2 group">
+                <div className="w-9 h-9 rounded-full bg-brand text-dark-bg flex items-center justify-center text-sm font-semibold select-none">
+                  {initial}
+                </div>
+                <span className="hidden md:inline text-sm font-medium text-light group-hover:text-brand transition-colors max-w-[120px] truncate">
+                  {displayName}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-light-muted transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-3 w-44 bg-dark-surface border border-dark-border rounded-xl py-2 shadow-xl">
+                  <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-light-muted hover:text-brand transition-colors">
+                    <LogOut className="w-4 h-4" />
+                    Log out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link to="/auth/login" className="hidden md:inline-block text-sm font-medium text-light hover:text-brand transition-colors">
+                Login
+              </Link>
+              <Link 
+                to="/auth/register" 
+                className="bg-brand text-dark-bg hover:bg-brand-hover px-5 py-2 rounded-full text-sm font-semibold transition-colors"
+              >
+                Register
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
