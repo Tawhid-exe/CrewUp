@@ -28,7 +28,13 @@ const getDateRange = (dateFilter) => {
 const buildFilter = (query) => {
   const filter = {};
 
-  const { categories, date, city, q } = query;
+  // 1. ADDED 'organizer' destructuring
+  const { categories, date, city, q, organizer } = query; 
+
+  // 2. ADDED organizer filter condition
+  if (organizer) {
+    filter.organizer = organizer;
+  }
 
   if (categories) {
     const list = categories.split(",").map((c) => c.trim()).filter(Boolean);
@@ -83,6 +89,45 @@ export const getEventById = async (req, res) => {
       return res.status(404).json({ error: "Event not found" });
     }
     return res.status(200).json(event);
+  } catch (err) {
+    return res.status(400).json(err);
+  }
+};
+
+export const createEvent = async (req, res) => {
+  try {
+    const newEvent = new Event(req.body);
+    await newEvent.save();
+    return res.status(201).json({ message: "Event created successfully" });
+  } catch (err) {
+    return res.status(400).json(err);
+  }
+};
+
+export const updateEvent = async (req, res) => {
+  try {
+    const updated = await Event.findOneAndUpdate(
+      { id: Number(req.params.id) },
+      req.body,
+      { new: true }
+    ).select("-__v");
+    
+    if (!updated) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    return res.status(200).json(updated);
+  } catch (err) {
+    return res.status(400).json(err);
+  }
+};
+
+export const deleteEvent = async (req, res) => {
+  try {
+    const deleted = await Event.findOneAndDelete({ id: Number(req.params.id) });
+    if (!deleted) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    return res.status(200).json({ message: "Event deleted successfully" });
   } catch (err) {
     return res.status(400).json(err);
   }
