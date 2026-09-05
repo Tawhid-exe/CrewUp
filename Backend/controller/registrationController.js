@@ -9,12 +9,12 @@ export const getRegistrations = async (req, res) => {
     if (req.query.status) {
       filter.status = req.query.status;
     }
-    
+
     const registrations = await Registration.find(filter)
       .populate("user", ["-password", "-__v"])
       .populate("event", "-__v")
       .select("-__v");
-      
+
     return res.status(200).json(registrations);
   } catch (err) {
     return res.status(400).json(err);
@@ -36,9 +36,9 @@ export const updateRegistration = async (req, res) => {
     const updated = await Registration.findOneAndUpdate(
       { _id: req.params.id },
       req.body,
-      { new: true }
+      { new: true },
     ).select("-__v");
-    
+
     if (!updated) {
       return res.status(404).json({ error: "Registration not found" });
     }

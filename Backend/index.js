@@ -3,6 +3,7 @@ import userRoutes from "./routes/users.js";
 import authRouter from "./routes/auth.js";
 import organizationRoutes from "./routes/organizations.js";
 import eventRoutes from "./routes/events.js";
+import registrationRoutes from "./routes/registrations.js";
 import log from "./middlewares/logger.js";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
@@ -43,6 +44,8 @@ app.use("/api/auth", authRouter);
 app.use("/api/organizations", organizationRoutes);
 
 app.use("/api/events", eventRoutes);
+
+app.use("/api/registrations", registrationRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port: ${PORT}`);
