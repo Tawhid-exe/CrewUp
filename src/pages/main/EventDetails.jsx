@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, MapPin, Globe, Users, Award, Dumbbell, Shirt, Coffee, BadgeCheck } from 'lucide-react';
-import { EVENTS } from '../../data/eventsData';
+import fetchJSON from '../../utils/api';
 
 const REQ_ICONS = { walk: Dumbbell, shoe: Shirt, food: Coffee, award: Award };
 
@@ -14,9 +15,39 @@ function formatTime(start, end) {
 
 export default function EventDetails() {
   const { id } = useParams();
-  const event = EVENTS.find((e) => e.id === Number(id));
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!event) return (
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchJSON(`/api/events/${id}`)
+      .then((data) => {
+        if (!cancelled) {
+          setEvent(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err.message);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <p className="text-white text-xl font-semibold">Loading event...</p>
+    </div>
+  );
+
+  if (error || !event) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <p className="text-white text-xl font-semibold">Event not found.</p>
       <Link to="/events" className="text-brand text-sm font-mono underline">← Back to Events</Link>

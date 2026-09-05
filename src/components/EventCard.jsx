@@ -47,7 +47,7 @@ function ParticipantAvatars({ previews, count }) {
 
 // ─── Event Card ───────────────────────────────────────────────
 export default function EventCard({ event }) {
-  const { title, start_time, end_time, location, is_remote, status, icon, image_url, participant_count, participant_previews } = event;
+  const { title, start_time, end_time, location, is_remote, status, icon, participant_count, participant_previews } = event;
 
   const badge = status === 'urgent' ? { label: 'Urgent', pulse: true }
               : status === 'remote' ? { label: 'Remote', pulse: false }
@@ -56,18 +56,12 @@ export default function EventCard({ event }) {
   return (
     <div className="group flex flex-col rounded-2xl overflow-hidden border border-dark-border bg-dark-surface hover:border-brand/40 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-brand/10">
 
-      {/* Image / Placeholder */}
+      {/* Icon Banner */}
       <div className="relative h-48 bg-dark-bg overflow-hidden flex-shrink-0">
-        {image_url ? (
-          <img src={image_url} alt={title} className="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-500" />
-        ) : (
-          <>
-            <div className="absolute inset-0 bg-gradient-to-br from-dark-bg to-dark-surface" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Terminal className="w-16 h-16 text-brand/10" />
-            </div>
-          </>
-        )}
+        <div className="absolute inset-0 bg-gradient-to-br from-dark-bg to-dark-surface" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Leaf className="w-16 h-16 text-brand/10" />
+        </div>
         <div className="absolute inset-0 bg-gradient-to-t from-dark-surface/60 via-transparent to-transparent" />
         {badge && (
           <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-dark-bg/80 backdrop-blur-sm border border-dark-border text-light px-3 py-1 rounded-full text-[11px] font-mono uppercase tracking-wider">

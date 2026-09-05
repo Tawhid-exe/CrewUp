@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Eye, Building2, ShieldCheck } from 'lucide-react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import { useAuth } from '../../hooks/useAuth';
 import bgImg from '../../assets/auth_org.jpg';
 
 const OrgLogin = () => {
@@ -10,6 +11,7 @@ const OrgLogin = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); 
+  const { login } = useAuth(); 
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -38,6 +40,7 @@ const OrgLogin = () => {
          throw new Error('Please login through the Volunteer portal.');
       }
 
+      login(data);
       navigate('/organizer/dashboard');
     } catch (err) {
       setError(err.message);
