@@ -1,6 +1,5 @@
 import { useState } from "react";
 import OrganizerSidebar from "../../components/organizer_portal/OrganizerSidebar";
-import { Link } from "react-router-dom";
 
 import {
   CalendarCheck,
@@ -14,8 +13,10 @@ import {
 
 function OrganizerDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [filter, setFilter] = useState("All");
+  const [openMenu, setOpenMenu] = useState(null);
 
-  const volunteers = [
+  const [volunteers, setVolunteers] = useState([
     {
       name: "Jane Doe",
       email: "jane.d@example.com",
@@ -40,12 +41,40 @@ function OrganizerDashboard() {
       initials: "SJ",
       image: false,
     },
-  ];
+  ]);
+
+  // Approve a volunteer
+  const approveVolunteer = (index) => {
+    setVolunteers((currentVolunteers) =>
+      currentVolunteers.map((volunteer, i) =>
+        i === index
+          ? { ...volunteer, status: "Approved" }
+          : volunteer
+      )
+    );
+  };
+
+  // Filter volunteers
+  const filteredVolunteers =
+    filter === "All"
+      ? volunteers
+      : volunteers.filter((volunteer) => volunteer.status === filter);
+
+  // Pending count
+  const pendingCount = volunteers.filter(
+    (volunteer) => volunteer.status === "Registered"
+  ).length;
 
   return (
-    <div className="flex min-h-screen bg-[#101413] text-[#e0e3e1]">
+    <div
+      className="flex min-h-screen bg-[#101413] text-[#e0e3e1]"
+      onClick={() => setOpenMenu(null)}
+    >
       {/* SIDEBAR */}
-      <OrganizerSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <OrganizerSidebar
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
+      />
 
       {/* MOBILE OVERLAY */}
       {isSidebarOpen && (
@@ -126,15 +155,15 @@ function OrganizerDashboard() {
             </div>
 
             <h2 className="mt-8 text-4xl font-semibold sm:mt-10 sm:text-5xl">
-              24
+              {pendingCount}
             </h2>
 
-            <Link
-              to="/organizer/volunteers"
+            <a
+              href="/organizer/volunteers"
               className="mt-4 inline-block text-xs font-medium uppercase tracking-widest text-[#afff66] sm:mt-5 sm:text-sm"
             >
               Review Now
-            </Link>
+            </a>
           </div>
         </div>
 
@@ -146,15 +175,49 @@ function OrganizerDashboard() {
             </h2>
           </div>
 
-          <button className="flex w-full items-center justify-center gap-3 rounded-lg border border-[#324539] py-3 text-xs uppercase tracking-widest text-[#afff66] transition hover:bg-[#24342A] sm:w-auto sm:border-0 sm:p-0">
-            <Filter size={20} />
-            Filter
-          </button>
+          {/* FILTER */}
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenMenu(
+                  openMenu === "filter" ? null : "filter"
+                );
+              }}
+              className="flex w-full items-center justify-center gap-3 rounded-lg border border-[#324539] py-3 text-xs uppercase tracking-widest text-[#afff66] transition hover:bg-[#24342A] sm:w-auto sm:border-0 sm:p-0"
+            >
+              <Filter size={20} />
+              Filter
+            </button>
+
+            {openMenu === "filter" && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute right-0 top-12 z-20 w-40 rounded-lg border border-[#324539] bg-[#1c201f] p-2 shadow-lg"
+              >
+                {["All", "Registered", "Approved"].map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => {
+                      setFilter(item);
+                      setOpenMenu(null);
+                    }}
+                    className={`w-full rounded-md px-4 py-3 text-left text-sm hover:bg-[#24342A] ${
+                      filter === item
+                        ? "text-[#afff66]"
+                        : "text-[#c1cab3]"
+                    }`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* VOLUNTEER TABLE */}
         <section className="w-full overflow-hidden rounded-2xl border border-[#324539] bg-[#1c201f]">
-          {/* SCROLLABLE TABLE */}
           <div className="overflow-x-auto">
             <div className="min-w-[750px]">
               {/* TABLE HEADER */}
@@ -166,9 +229,9 @@ function OrganizerDashboard() {
               </div>
 
               {/* TABLE ROWS */}
-              {volunteers.map((volunteer, index) => (
+              {filteredVolunteers.map((volunteer, index) => (
                 <div
-                  key={index}
+                  key={volunteer.email}
                   className="grid min-h-[82px] grid-cols-[1.5fr_1.1fr_0.8fr_0.7fr] items-center border-b border-[#24342A] px-5"
                 >
                   {/* VOLUNTEER */}
@@ -178,7 +241,9 @@ function OrganizerDashboard() {
                     </div>
 
                     <div>
-                      <h3 className="font-semibold">{volunteer.name}</h3>
+                      <h3 className="font-semibold">
+                        {volunteer.name}
+                      </h3>
 
                       <p className="mt-1 text-sm text-[#c1cab3]">
                         {volunteer.email}
@@ -203,25 +268,89 @@ function OrganizerDashboard() {
                   </div>
 
                   {/* ACTIONS */}
-                  <div className="flex items-center justify-end gap-5">
-                    <Mail
-                      size={20}
-                      className="cursor-pointer text-[#c1cab3] transition hover:text-[#afff66]"
-                    />
+                  <div className="relative flex items-center justify-end gap-5">
+                    {/* MAIL */}
+                    <a
+                      href={`mailto:${volunteer.email}`}
+                      title="Send Email"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Mail
+                        size={20}
+                        className="cursor-pointer text-[#c1cab3] transition hover:text-[#afff66]"
+                      />
+                    </a>
 
+                    {/* APPROVE / MENU */}
                     {volunteer.status === "Registered" ? (
-                      <button className="rounded-lg border border-[#537244] px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[#afff66] transition hover:bg-[#24342A]">
+                      <button
+                        onClick={() => approveVolunteer(index)}
+                        className="rounded-lg border border-[#537244] px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[#afff66] transition hover:bg-[#24342A]"
+                      >
                         Approve
                       </button>
                     ) : (
-                      <MoreVertical
-                        size={21}
-                        className="cursor-pointer text-[#c1cab3] transition hover:text-[#afff66]"
-                      />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenu(
+                            openMenu === index ? null : index
+                          );
+                        }}
+                      >
+                        <MoreVertical
+                          size={21}
+                          className="cursor-pointer text-[#c1cab3] transition hover:text-[#afff66]"
+                        />
+                      </button>
+                    )}
+
+                    {openMenu === index && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute right-0 top-8 z-20 w-36 rounded-lg border border-[#324539] bg-[#1c201f] p-2 shadow-lg"
+                      >
+                        <button
+                          onClick={() => {
+                            alert(
+                              `${volunteer.name} is already approved.`
+                            );
+                            setOpenMenu(null);
+                          }}
+                          className="w-full rounded-md px-3 py-2 text-left text-sm text-[#c1cab3] hover:bg-[#24342A] hover:text-[#afff66]"
+                        >
+                          View Details
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setVolunteers((current) =>
+                              current.map((v, i) =>
+                                i === index
+                                  ? {
+                                      ...v,
+                                      status: "Registered",
+                                    }
+                                  : v
+                              )
+                            );
+                            setOpenMenu(null);
+                          }}
+                          className="w-full rounded-md px-3 py-2 text-left text-sm text-[#c1cab3] hover:bg-[#24342A] hover:text-[#afff66]"
+                        >
+                          Undo Approval
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
               ))}
+
+              {filteredVolunteers.length === 0 && (
+                <div className="py-10 text-center text-sm text-[#c1cab3]">
+                  No volunteers found.
+                </div>
+              )}
             </div>
           </div>
         </section>
