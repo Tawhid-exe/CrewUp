@@ -28,10 +28,8 @@ const getDateRange = (dateFilter) => {
 const buildFilter = (query) => {
   const filter = {};
 
-  // 1. ADDED 'organizer' destructuring
   const { categories, date, city, q, organizer } = query;
 
-  // 2. ADDED organizer filter condition
   if (organizer) {
     filter.organizer = organizer;
   }
