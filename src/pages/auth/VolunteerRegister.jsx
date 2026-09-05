@@ -1,15 +1,56 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, MapPin, ArrowRight } from 'lucide-react';
+import { Mail, ArrowRight } from 'lucide-react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import bgImg from '../../assets/auth_volunteer.jpg';
 
 const VolunteerRegister = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate(); 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    navigate('/auth/volunteer-login');
+  
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    
+    try {
+      const response = await fetch('http://localhost:4000/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: formData.email,
+          displayName: formData.name.trim(),
+          password: formData.password,
+          role: 'volunteer'
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      navigate('/auth/volunteer-login');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="w-full flex-grow flex">
       {/* Left side - Image & Branding */}
@@ -39,32 +80,22 @@ const VolunteerRegister = () => {
           
           <div className="relative z-10">
             <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
-            <p className="text-light-muted text-sm mb-8">Enter your details to configure your stewardship profile.</p>
+            <p className="text-light-muted text-sm mb-6">Enter your details to configure your stewardship profile.</p>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <Input label="First Name" id="firstName" placeholder="Jane" />
-                <Input label="Last Name" id="lastName" placeholder="Doe" />
+            {error && <div className="mb-4 p-3 bg-red-900/30 border border-red-500/50 rounded text-red-200 text-sm">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <Input label="Name" id="name" placeholder="Jane Doe" value={formData.name} onChange={handleChange} required />
               </div>
               
-              <Input label="Email Address" id="email" type="email" icon={Mail} placeholder="jane.doe@example.com" />
-              <Input label="Primary Location" id="location" icon={MapPin} placeholder="City, Region" />
+              <Input label="Email Address" id="email" type="email" icon={Mail} placeholder="jane.doe@example.com" value={formData.email} onChange={handleChange} required />
+              <Input label="Password" id="password" type="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required />
 
               <div className="pt-2">
-                <label className="text-xs font-mono uppercase tracking-wider text-light-muted mb-3 block">Areas of Interest</label>
-                <div className="flex flex-wrap gap-2">
-                  {['Environmental', 'Education', 'Tech Support', 'Logistics'].map((tag) => (
-                    <button key={tag} type="button" className="px-4 py-2 rounded-full border border-dark-border bg-dark-bg text-xs font-medium text-light hover:border-brand hover:text-brand transition-colors">
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-6">
-                <Button type="submit" variant="primary" className="w-full group rounded-xl">
-                  <span className="font-mono text-sm tracking-widest uppercase">INITIALIZE PROFILE</span>
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                <Button type="submit" variant="primary" className="w-full group rounded-xl" disabled={loading}>
+                  <span className="font-mono text-sm tracking-widest uppercase">{loading ? 'INITIALIZING...' : 'INITIALIZE PROFILE'}</span>
+                  {!loading && <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />}
                 </Button>
               </div>
             </form>

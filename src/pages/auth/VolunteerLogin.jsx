@@ -1,10 +1,51 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Leaf } from 'lucide-react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import bgImg from '../../assets/auth_volunteer.jpg';
 
 const VolunteerLogin = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:4000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username: formData.email, password: formData.password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      if (data.role && data.role !== 'volunteer') {
+         throw new Error('Please login through the Organization portal.');
+      }
+
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="w-full flex-grow flex">
       {/* Left side - Image */}
@@ -28,15 +69,16 @@ const VolunteerLogin = () => {
             <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
             <p className="text-light-muted text-sm mb-8">Sign in to continue your stewardship journey.</p>
 
-            <form className="space-y-6">
-              <Input label="Email Address" id="email" type="email" icon={Mail} placeholder="volunteer@example.com" />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && <div className="p-3 bg-red-900/30 border border-red-500/50 rounded text-red-200 text-sm">{error}</div>}
+              <Input label="Email Address" id="email" type="email" icon={Mail} placeholder="volunteer@example.com" value={formData.email} onChange={handleChange} required />
               
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label htmlFor="password" className="text-xs font-mono uppercase tracking-wider text-light-muted">Password</label>
                   <a href="#" className="text-xs text-brand hover:underline">Forgot?</a>
                 </div>
-                <Input id="password" type="password" icon={Lock} placeholder="••••••••" />
+                <Input id="password" type="password" icon={Lock} placeholder="••••••••" value={formData.password} onChange={handleChange} required />
               </div>
 
               <div className="flex items-center space-x-2">
@@ -45,9 +87,9 @@ const VolunteerLogin = () => {
               </div>
 
               <div className="pt-2">
-                <Button type="submit" variant="primary" className="w-full group rounded-xl font-semibold">
-                  <span>Sign In</span>
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                <Button type="submit" variant="primary" className="w-full group rounded-xl font-semibold" disabled={loading}>
+                  <span>{loading ? 'Signing in...' : 'Sign In'}</span>
+                  {!loading && <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />}
                 </Button>
               </div>
             </form>
