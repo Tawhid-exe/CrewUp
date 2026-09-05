@@ -29,7 +29,7 @@ const buildFilter = (query) => {
   const filter = {};
 
   // 1. ADDED 'organizer' destructuring
-  const { categories, date, city, q, organizer } = query; 
+  const { categories, date, city, q, organizer } = query;
 
   // 2. ADDED organizer filter condition
   if (organizer) {
@@ -37,7 +37,10 @@ const buildFilter = (query) => {
   }
 
   if (categories) {
-    const list = categories.split(",").map((c) => c.trim()).filter(Boolean);
+    const list = categories
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean);
     if (list.length > 0) {
       filter.category = { $in: list };
     }
@@ -109,9 +112,9 @@ export const updateEvent = async (req, res) => {
     const updated = await Event.findOneAndUpdate(
       { id: Number(req.params.id) },
       req.body,
-      { new: true }
+      { new: true },
     ).select("-__v");
-    
+
     if (!updated) {
       return res.status(404).json({ error: "Event not found" });
     }
