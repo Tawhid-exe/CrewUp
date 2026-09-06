@@ -4,6 +4,7 @@ import { Mail, ArrowRight } from 'lucide-react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import bgImg from '../../assets/auth_volunteer.jpg';
+import { API_BASE } from '../../utils/api';
 
 const VolunteerRegister = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +27,7 @@ const VolunteerRegister = () => {
     setLoading(true);
     
     try {
-      const response = await fetch('http://localhost:4000/api/users', {
+      const response = await fetch(`${API_BASE}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

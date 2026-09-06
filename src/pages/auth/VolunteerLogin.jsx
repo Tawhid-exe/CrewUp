@@ -4,6 +4,7 @@ import { Mail, Lock, ArrowRight, Leaf } from 'lucide-react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { API_BASE } from '../../utils/api';
 import bgImg from '../../assets/auth_volunteer.jpg';
 
 const VolunteerLogin = () => {
@@ -23,7 +24,7 @@ const VolunteerLogin = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/api/auth/login', {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

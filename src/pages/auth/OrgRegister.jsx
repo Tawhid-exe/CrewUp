@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, ArrowRight } from 'lucide-react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import { API_BASE } from '../../utils/api';
 
 const OrgRegister = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const OrgRegister = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/api/users', {
+      const response = await fetch(`${API_BASE}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

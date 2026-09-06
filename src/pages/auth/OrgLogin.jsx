@@ -4,6 +4,7 @@ import { Mail, Lock, ArrowRight, Eye, Building2, ShieldCheck } from 'lucide-reac
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { API_BASE } from '../../utils/api';
 import bgImg from '../../assets/auth_org.jpg';
 
 const OrgLogin = () => {
@@ -23,7 +24,7 @@ const OrgLogin = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/api/auth/login', {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

@@ -47,6 +47,10 @@ app.use("/api/events", eventRoutes);
 
 app.use("/api/registrations", registrationRoutes);
 
+app.use((req, res) => {
+  res.status(404).json({ error: `Route not found: ${req.originalUrl}` });
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening on port: ${PORT}`);
 });
